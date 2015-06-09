@@ -104,21 +104,3 @@ with open('ctecs.csv') as f:
         for word in ctec_array:
             weka.write(str(word) + ',')
         weka.write(str(score) + '\n')
-
-
-
-
-
-
-
-
-# data, scores = preprocess('ctecs.csv', bag)
-# ds = SupervisedDataSet(5000, 1)
-#
-# for idx, example in enumerate(data):
-#     if scores[idx]:
-#         ds.addSample(example, (float(scores[idx]),))
-#
-# net = buildNetwork(5000, 3, 1, bias=True)
-# trainer = BackpropTrainer(net, ds)
-# print trainer.train()
