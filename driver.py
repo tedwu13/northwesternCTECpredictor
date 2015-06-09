@@ -4,6 +4,7 @@ import csv
 import re
 import json
 import os.path
+import time
 
 def readCTEC(data_file):
     columns = defaultdict(list) # each value in each column is appended to a list
@@ -24,7 +25,7 @@ def preprocess(data_file, bag):
     for idx, review in enumerate(reviews):
         review = re.findall(r'[a-z]+', review.lower())
 
-        word_array = [0]*5000
+        word_array = [0]*1000
         for word in review:
             if word in bag:
                 word_array[bag[word]] = 1
@@ -42,7 +43,7 @@ if not os.path.exists("bag.json"):
     stop = stopwords.words('english')
 
     # organize by count
-    most_common_words = Counter(words).most_common(5000 + len(stop))
+    most_common_words = Counter(words).most_common(1000 + len(stop))
 
     bag = {}
     index = 0
@@ -50,7 +51,7 @@ if not os.path.exists("bag.json"):
         if word not in stop:
             bag[word] = index
             index += 1
-        if index == 5000:
+        if index == 1000:
             break
     # dump a bag of words of the 5000 most common words across CTECs
     with open('bag.json', 'w') as fp:
@@ -69,12 +70,44 @@ weka.write('\n')
 
 for item in sorted(bag.items(), key=lambda x: x[1]):
     weka.write('@attribute \'' + item[0] + '\' {0, 1}\n')
+weka.write('@attribute \'ctec_score\' numeric\n')
 weka.write('\n')
 
 weka.write('@data\n')
-# with open('ctecs.csv') as f:
-#     for line in f:
-#         words =
+with open('ctecs.csv') as f:
+    firstline = True
+    for line in f:
+        if firstline:
+            firstline = False
+            continue
+
+        if len(line.split(',')) < 18:
+            continue
+
+        score = line.split(',')[17]
+        if not score:
+            continue
+
+        test = re.findall(r'[a-z:]', score)
+        if len(test) > 0:
+            continue
+
+        ctec_array = [0] * 1000
+        words = re.findall(r'[a-z]+', line.lower())
+        for word in words:
+            if word in bag:
+                ctec_array[bag[word]] = 1
+
+        if sum(ctec_array) == 0:
+            continue
+
+        for word in ctec_array:
+            weka.write(str(word) + ',')
+        weka.write(str(score) + '\n')
+
+
+
+
 
 
 
