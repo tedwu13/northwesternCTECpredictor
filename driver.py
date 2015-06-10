@@ -53,6 +53,27 @@ if not os.path.exists("bag.json"):
             index += 1
         if index == 500:
             break
+
+    # add professors
+    professors = []
+    with open('ctecs.csv') as f:
+        for line in f:
+            if len(line.split(",")) < 12:
+                continue
+            professor = line.split(",")[11]
+            if not professor:
+                continue
+
+            professors.append(professor)
+
+    most_common_professors = Counter(professors).most_common(500)
+
+    for professor, count in most_common_professors:
+        professor = professor.replace('\'','')
+        bag[professor] = index
+        index += 1
+
+
     # dump a bag of words of the 5000 most common words across CTECs
     with open('bag.json', 'w') as fp:
         json.dump(bag, fp)
@@ -81,6 +102,9 @@ with open('ctecs.csv') as f:
             firstline = False
             continue
 
+        if not line:
+            continue
+
         if len(line.split(',')) < 18:
             continue
 
@@ -100,11 +124,15 @@ with open('ctecs.csv') as f:
         else:
             score = 0
 
-        ctec_array = [0] * 500
+        ctec_array = [0] * 1000
         words = re.findall(r'[a-z]+', line.lower())
         for word in words:
             if word in bag:
                 ctec_array[bag[word]] = 1
+
+        professor = line.split(',')[11]
+        if professor in bag:
+            ctec_array[bag[professor]] = 1
 
         if sum(ctec_array) == 0:
             continue
