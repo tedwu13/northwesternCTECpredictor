@@ -25,7 +25,7 @@ def preprocess(data_file, bag):
     for idx, review in enumerate(reviews):
         review = re.findall(r'[a-z]+', review.lower())
 
-        word_array = [0]*2000
+        word_array = [0]*500
         for word in review:
             if word in bag:
                 word_array[bag[word]] = 1
@@ -43,7 +43,7 @@ if not os.path.exists("bag.json"):
     stop = stopwords.words('english')
 
     # organize by count
-    most_common_words = Counter(words).most_common(2000 + len(stop))
+    most_common_words = Counter(words).most_common(500 + len(stop))
 
     bag = {}
     index = 0
@@ -51,7 +51,7 @@ if not os.path.exists("bag.json"):
         if word not in stop:
             bag[word] = index
             index += 1
-        if index == 2000:
+        if index == 500:
             break
     # dump a bag of words of the 5000 most common words across CTECs
     with open('bag.json', 'w') as fp:
@@ -100,7 +100,7 @@ with open('ctecs.csv') as f:
         else:
             score = 0
 
-        ctec_array = [0] * 2000
+        ctec_array = [0] * 500
         words = re.findall(r'[a-z]+', line.lower())
         for word in words:
             if word in bag:
